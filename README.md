@@ -35,3 +35,15 @@ ubuntu启动redis 随服务器自启动
 npm run apidoc
 # 跑测试用例
 npm test
+
+
+vs-code 调试   es6+babel+nodejs:在package.json里面添加debug,使用babel-node,使其支持import,而不是node:
+"scripts": {
+    ...
+    ...
+    "debug": "babel-node --inspect=9229 ./bin/www"
+  },
+
+
+ vscode中 alt+F12：快速打开终端
+ 开启debug:f5
