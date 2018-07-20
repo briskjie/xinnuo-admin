@@ -44,9 +44,9 @@ class Ctrl{
 	 */
 	initClient() {
 		this.client = qn.create({
-			accessKey: 'AIoInqqk9hMIdzCVpUuUmAS8PhFgrO6MXsse4PFD',
-			secretKey: 'wh3JtbPWa2kCW22wRd17DJ6v1hPhSRB5fSWPw6UN',
-			bucket   : 'skyvow',
+			accessKey: 'v9xUQ0SgS3ja0nK_w9e8bd5MpcJ4kN-H6BQIF7G5',
+			secretKey: 'LTMzRKqTuksiyy-P7_djSQ9xnh6Cb-pWCC6cWM_q',
+			bucket   : 'dream-river',
 			origin   : 'http://7xo4dc.com1.z0.glb.clouddn.com/',
 		})
 	}
