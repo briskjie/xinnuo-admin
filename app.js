@@ -6,7 +6,7 @@ import log4js from 'log4js'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
-import cors from 'cors'
+import cors from 'cors'//实现跨域请求
 import connect from 'connect'
 import jwt from 'express-jwt'
 import sessionMongoose from 'session-mongoose'
@@ -30,25 +30,47 @@ const auth         = new jwtauth()
 mkdirsSync(config.upload.tmp)
 mkdirsSync(config.upload.path)
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views') )
-app.set('view engine', 'hbs')
+/**
+ * view engine setup express中使用模板引擎，可以使用handlebars/jade
+ * 如果要在不同扩展名的文件中使用handlebars(如.html)
+ * app.set('view engine','html')
+ * app.engin('html',require('hbs')._express)
+ */
+
+app.set('view engine', 'hbs')//用hbs作为模板引擎
+app.set('views', path.join(__dirname, 'views') )//设置模板所在的路径，__dirname指的是开发期间该行代码所在的目录，在这里也就是app.js的目录，也就是根目录，进而找到根目录下面的views目录
+//配置模板引擎
 app.engine('hbs', exphbs({
-	layoutsDir: path.join(__dirname, 'views/layouts/'),
-	defaultLayout: 'main',
-	extname: '.hbs',
+	layoutsDir: path.join(__dirname, 'views/layouts/'),//设置布局模板文件的目录
+	defaultLayout: 'main',//设置默认的页面布局模板为main.hbs
+	extname: '.hbs',//设置模板文件使用的后缀名称，这个.hbs是我们自定义的，也可以使用html,只需要把上面的.hbs全部替换掉
 	helpers: {
 		time: Date.now
 	}
 }))
 
-app.use(favicon(__dirname + '/public/favicon.ico'))
+//app.use()设置一些列的中间件
+app.use(favicon(__dirname + '/public/favicon.ico'))//设置favicon图标
+
+/**
+ * log4js是nodejs的日志管理工具，可以将日志以各种形式输出到各种渠道
+ */
 app.use(log4js.connectLogger(logger('normal'), {level:'auto', format:':method :url :status'}))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')))//express托管静态文件,设置静态文件目录
 
-app.use(cookieParser(config.secret))
+
+/**
+ * cookie-parser在用express生成器构建项目时自动安装的，它的作用就是设置，获取和安装cookie，express-session依赖于它
+ * 
+ * app.use(cookieParser())这种方式创建出的cookie的各种操作都是未签名的，签名可以提高安全性
+ * app.use(cookieParser('sss)),这种方式创建时签名的,用一个自定义的字符串'sss'来作为secret
+ * 
+ * 
+ * express对session cookie的处理很有意思，就是这两个cookie-parser和express-session模块，依赖关系很微妙
+ */
+app.use(cookieParser(config.secret))//挂载中间件，可以理解为实例化
 
 // set session.
 app.use(session({
@@ -56,12 +78,19 @@ app.use(session({
 	cookie: {
 		maxAge: 60000,
 	},
-	resave: false,
-	saveUninitialized: true,
+	resave: false,//是指每次请求都重新设置session cookie,假设你的cookie十分钟过期，每次请求都会再设置10分钟
+	saveUninitialized: true,//是指无论有没有session cookie，每次请求都设置session cookie，默认给个标示为connect.sid
+	// secure:true,//设置在https
 	secret: config.secret
 }))
 
+/**
+ * 实现跨域请求，(jsonp只能get请求)
+ * express写的接口只能内部使用，如果想要外部服务器访问，就涉及到跨域(浏览器有同源策略)
+ * 这个代码一定要写在注册路由的前面，此模块也可以当作路由中间件，指定某一个或某一部分路由拥有跨域功能
+ */
 app.use(cors())
+
 
 app.use((req, res, next) => {
 	if(req.path.indexOf('/api') === -1) {

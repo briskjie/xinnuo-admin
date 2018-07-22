@@ -43,11 +43,12 @@ class Ctrl{
 	 * init qn
 	 */
 	initClient() {
+		console.log('-----------init qn-------------')
 		this.client = qn.create({
 			accessKey: 'v9xUQ0SgS3ja0nK_w9e8bd5MpcJ4kN-H6BQIF7G5',
 			secretKey: 'LTMzRKqTuksiyy-P7_djSQ9xnh6Cb-pWCC6cWM_q',
 			bucket   : 'dream-river',
-			origin   : 'http://7xo4dc.com1.z0.glb.clouddn.com/',
+			origin   : 'http://pc5a221jc.bkt.clouddn.com/',
 		})
 	}
 
