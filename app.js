@@ -92,6 +92,12 @@ app.use(session({
 app.use(cors())
 
 
+/**
+ * 中间件分为系统级中间件和路由级中间件
+ * 
+ * 
+ * 下面是设置系统级中间件，对所有的请求生效
+ */
 app.use((req, res, next) => {
 	if(req.path.indexOf('/api') === -1) {
 		return res.render('index')
