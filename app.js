@@ -151,7 +151,7 @@ app.use(/\/api/, tools)
  * 绑定的中间件只有请求时才触发操作
  */
 app.use(/^((?!sign\/up|sign\/in|captcha).)+$/, [
-	jwt({ secret: config.secret}), 
+	jwt({ secret: config.secret}),
 	auth.verifyToken.bind(auth)//通过中间件来验证token
 ])
 

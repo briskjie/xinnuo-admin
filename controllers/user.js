@@ -51,7 +51,7 @@ class Ctrl{
 	}
 
 	/**
-	 * code 换取 session_key
+	 * 服务端拿着终端从微信获取的临时访问令牌code再去微信换取 session_key
 	 */
 	getSessionKey(code) {
 		const appid = config.wechat.appid
@@ -89,7 +89,7 @@ class Ctrl{
 		const code = req.body.code
 		const body = {
 			username: null, 
-			password: res.jwt.setMd5('123456'), 
+			password: res.jwt.setMd5('123456'),//res的jwt方法通过中间件获得 
 		}
 
 		this.getSessionKey(code)
@@ -107,6 +107,10 @@ class Ctrl{
 		})
 		.then(doc => {
 			if (doc && doc._id) return res.tools.setJson(0, '注册成功', {
+			
+				//   用mongod的user表总的用户_id通过jwt生成token
+				//   客户端请求时，服务端可以通过jwt中间件使用token解出id(取出掉ObjectId)
+			
 				token: res.jwt.setToken(doc._id)
 			})
 		})
