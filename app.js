@@ -146,13 +146,19 @@ app.use(/\/api/, tools)
  * {n,}:重复至少n次
  * 
  * captcha:验证码
- * 匹配登录、退出、验证码然后通过JWT进行用户认证
+ * 匹配登录、退出、验证码请求，然后将其去掉，其他的所有请求都做通过JWT进行用户登认证，
+ * 包括检测token是否过期，认证用户是否存在，以及认证通过后将所有请求绑定上用户信息
  * 
  * 绑定的中间件只有请求时才触发操作
  */
 app.use(/^((?!sign\/up|sign\/in|captcha).)+$/, [
-	jwt({ secret: config.secret}),
-	auth.verifyToken.bind(auth)//通过中间件来验证token
+	jwt({ secret: config.secret}),//通过jwt来解密token，拿到id，并把它放到req.user.id中
+	/**
+	 * 通过上面解密出的req.user.id去查库(匹配_id)，有的话说明token正确，
+	 * 用户处于登录状态，然后将查寻到的用户信息绑定到req.user中，这样每个请求
+	 * 在登录状态下就都携带了用户信息
+	 */
+	auth.verifyToken.bind(auth)
 ])
 
 // 加载路由

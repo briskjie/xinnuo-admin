@@ -147,6 +147,28 @@ class Ctrl{
 
 		this.getSessionKey(code)
 		.then(doc => {
+			/**
+			 * 调用微信登录的时候通过getSessionKey(code)拿到openId和session_key，我们拿着openId去查库,在注册的时候
+			 * openId映射到user表中的username，所以拿着openId去查看有没有该用户，没有就返回错误，客户端收到错误后调用
+			 * 注册接口，服务端再去执行注册方法。有的话就要返回给客户端token了，登录的主要目的就是返回给客户端一个token，
+			 * 这个token的生成规则可以自己指定，这里我们是将user表中的对象_id:ObjectId("xxxx")通过jwt生成token，如果是
+			 * 用用户名和密码登录，那么就可以将用户名和密码通过jwt来生成token。之后的请求，客户端header带token（Authorization）
+			 * 去请求，服务端拿到token后通过JWT解出_id，然后就可以查库后拿到用户信息，（实际上通过中间件拿到用户信息后把它放到了
+			 * req里面这样的话相当于无论哪个请求都是携带了用户信息的，这样的话，无论哪个接口业务需要用户信息都不用再去查询，直接用就可以了
+			 * 在这里这个用户信息是又去库里查到的，所以会有服务器存储压力，如果对于不 重要的用户信息其实可以直接放到token
+			 * 里面去）。
+			 * 同时可见获取的openId(映射到了user表中的username)可以用来在用户登录的时候查看用户是否存在，即是否已经在我们的
+			 * 业务服务器中注册过。
+			 * 
+			 * 所以要理清一点就是在我们的业务中openId和_id(用来生成token)的不同应用场景，openId是用来检查用户是否存在-点击登录，
+			 * 而_id用来匹配token从而验证用户登录状态（即通过token是否能在库中拿到_id,拿不到说明token过期或者token被篡改)
+			 * 
+			 * token说白就是让每个请求携带用户信息(登录状态下)，我们的应用只有在查看个人中心以及购物等的的时候才检测登录状态，
+			 * 首页无需登录
+			 * 
+			 * 实际上在上述服务器拿到token后，会先去redis里面匹配token，匹配的结果中有一种就是token过期，如果匹配到token，
+			 * 并且有效，再去获取用户信息，详细细节查看jwtauth.js
+			 */
 			doc = JSON.parse(doc)
 			if (doc && doc.errmsg) return res.tools.setJson(doc.errcode, doc.errmsg)
 			if (doc && doc.openid) return this.model.findByName(doc.openid)
