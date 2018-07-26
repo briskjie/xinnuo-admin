@@ -47,3 +47,8 @@ vs-code 调试   es6+babel+nodejs:在package.json里面添加debug,使用babel-n
 
  vscode中 alt+F12：快速打开终端
  开启debug:f5
+
+
+
+
+ 采用AngularUI路由器模块等应用程序接口可以分为不同个$state（状态）。Angular的核心为路由服务，URLs可以用来控制视图。AngularUI路由提供了一个更强大的状态管理，即状态可以被命名，嵌套，以及合并视图，允许一个以上的模板呈现在同一页面，此外，每个状态无需绑定到一个URL，并且数据可以更灵活地推送到每个状态
