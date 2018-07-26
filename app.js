@@ -99,12 +99,8 @@ app.use(cors())
  * 下面是设置系统级中间件，对所有的请求生效
  */
 app.use((req, res, next) => {
-<<<<<<< HEAD
-	if(req.path.indexOf('/api') === -1) {//要检索的字符串没有出现返回-1
-=======
 	//url路径中没有api表示是管理后台请求，交给后台页面处理
-	if(req.path.indexOf('/api') === -1) {
->>>>>>> ea399aee182653d4a27bb160e5ed23f0abb4c573
+	if(req.path.indexOf('/api') === -1) {//要检索的字符串没有出现返回-1
 		return res.render('index')
 	}
 	return next()
