@@ -99,7 +99,12 @@ app.use(cors())
  * 下面是设置系统级中间件，对所有的请求生效
  */
 app.use((req, res, next) => {
+<<<<<<< HEAD
 	if(req.path.indexOf('/api') === -1) {//要检索的字符串没有出现返回-1
+=======
+	//url路径中没有api表示是管理后台请求，交给后台页面处理
+	if(req.path.indexOf('/api') === -1) {
+>>>>>>> ea399aee182653d4a27bb160e5ed23f0abb4c573
 		return res.render('index')
 	}
 	return next()
@@ -110,11 +115,48 @@ app.use((req, res, next) => {
 // 	res.render('index')
 // })
 
+
+
 // custom middleware
+/**
+ * app.use(arg1,arg2)
+ * arg1表示匹配的url
+ * arg2表示使用的中间件
+ *  /\/api/释义：正则中 /顺斜杠表示正则的开始和结束，\表示转义
+ * 因此上面的意思就是匹配url中带有 /api的请求，然后使用中间件
+ * 
+ * 
+ * tools中间件，装配分页插件(paginates.js)和返回指定数据格式
+ * 的插件(common/tools.js)和用户认证插件JWT(用户生成加密token，并且负载
+ * 可以携带非重要信息，譬如id，服务端可以通过token计算出id，而session需要存储
+ * 会增加服务器存储压力)
+ */
 app.use(/\/api/, tools)
+
+/**
+ * 正则表达式中：
+ * ():是为了提取匹配字符串的，表达式中有几个()就有几个相应的匹配字符串
+ * 		如(\s*)表示连续空格的字符串
+ * []定义匹配字符串的范围
+ * {}定义匹配字符串的长度
+ * [0-9]{0,9}:表示长度为0到9的数字字符串
+ * 
+ * ^:正则表达式匹配字符串开始的位置
+ * $:正则表达式匹配字符串结束的位置
+ * *:重复0次或多次
+ * +:重复1次或多次
+ * ?:重复0次或1次
+ * {n}：重复n次
+ * {n,}:重复至少n次
+ * 
+ * captcha:验证码
+ * 匹配登录、退出、验证码然后通过JWT进行用户认证
+ * 
+ * 绑定的中间件只有请求时才触发操作
+ */
 app.use(/^((?!sign\/up|sign\/in|captcha).)+$/, [
-	jwt({ secret: config.secret}), 
-	auth.verifyToken.bind(auth)
+	jwt({ secret: config.secret}),
+	auth.verifyToken.bind(auth)//通过中间件来验证token
 ])
 
 // 加载路由
