@@ -10,7 +10,9 @@ import app from '../app'
 // 	console.log('------ Express server listening on port ' + server.address().port + ' ------')
 // })
 
-
+/**
+ * 下面同时配置了http和https，通过软件生成证书
+ */
 var fs = require('fs');
 var http = require('http');
 var https = require('https');

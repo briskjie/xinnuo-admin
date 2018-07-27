@@ -164,7 +164,11 @@ app.use(/^((?!sign\/up|sign\/in|captcha).)+$/, [
 // 加载路由
 routes(app)
 
-// catch 404 and forward to error handler
+/**
+ * catch 404 and forward to error handler
+ * 业务路由中处理请求，正确时就直接返回客户端结果，即下面的中间件不再捕获请求，如果错误就会抛出异常.catch(err => next(err))，具体详见各个业务模块的处理，
+ * 然后就会被下面的中间件捕获
+ */
 app.use((req, res, next) => {
 	const err = new Error('Not Found')
 	err.status = 404
@@ -193,6 +197,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use((err, req, res, next) => {
 	res.status(err.status || 500)
+	//将错误信息渲染到views目录下的error模板中
 	res.render('error', {
 		layout: false,
 		message: err.message,
