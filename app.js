@@ -177,10 +177,17 @@ app.use((req, res, next) => {
 	next(err)
 })
 
-// error handlers
-
-// development error handler
-// will print stacktrace
+/**
+ * app.get('env) -> 获取当前用户环境变量中的NODE_ENV，在package.json里面script build中指定NODE_ENV
+ * 在我们的项目中指定了NODE_ENV=production，这个时候ridis和mongod就会去连接各自的production环境
+ * 因此NODE_ENV就是项目全局的一个开发环境变量，在某一地方自动按配置的环境变量值去执行相应环境下的代码，
+ * 譬如mongodb和redis的开发环境和生产环境，查看config.js和package.js
+ * 
+ * 如果是开发环境就在控制台打印log
+ * error handlers
+ * development error handler will print stacktrace
+ * error handlers
+ */
 if (app.get('env') === 'development') {
 	app.use((err, req, res, next) => {
 		console.log(err)
