@@ -161,10 +161,12 @@ app.use(/^((?!sign\/up|sign\/in|captcha).)+$/, [
 	auth.verifyToken.bind(auth)
 ])
 
-// 加载路由
+// 加载路由，将请求交给各个模块去处理，注意整app.js都是由上往下流式来处理
 routes(app)
 
-// catch 404 and forward to error handler
+
+//上面各个模块处理完毕后可能会跑出一场，接下来就是捕获一场并将其交给handler去处理
+// catch 404 and forward to error handler,捕获404 not found错误，并把它交给handler去处理
 app.use((req, res, next) => {
 	const err = new Error('Not Found')
 	err.status = 404
