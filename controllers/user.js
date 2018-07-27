@@ -4,7 +4,12 @@ import jwt from '../common/jwtauth'
 import WXBizDataCrypt from '../common/WXBizDataCrypt'
 import proxy from '../proxy'
 import jwtauth from '../middlewares/jwtauth'
-
+/**
+ * Object.assign是ES6新添加的接口，主要用途是用来合并多个JS对象，assign方法将多个原对象的属性和方法合并到目标对象上面
+ * 如果在这个过程中出现同名的属性或方法，会覆盖原来的属性和方法
+ * Object.assign是浅拷贝，也就说，如果拷贝过来的属性的值是对象等复合属性，那么只能拷贝过来一个引用
+ * 由于是浅拷贝，所以拷贝过来的对象的引用的对象内部发生变化都会在目标对象上面呈现出来
+ */
 class Ctrl{
 	constructor(app) {
 		Object.assign(this, {
@@ -25,6 +30,9 @@ class Ctrl{
 
 	/**
 	 * 注册路由
+	 * 
+	 * 回调函数后面的bind(this)是改变this的指向，如果不改变的话，在回调函数内部使用this指向的是回调函数返回的上下文对象，
+	 * 通过bind(this)方法可以是this指向当前外层的this，如果不用bind(this),就使用var that=this
 	 */
 	routes() {
 		this.app.post('/api/user/wechat/sign/up', this.wechatSignUp.bind(this))

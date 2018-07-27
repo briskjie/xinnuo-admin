@@ -164,9 +164,13 @@ app.use(/^((?!sign\/up|sign\/in|captcha).)+$/, [
 // 加载路由，将请求交给各个模块去处理，注意整app.js都是由上往下流式来处理
 routes(app)
 
-
-//上面各个模块处理完毕后可能会跑出一场，接下来就是捕获一场并将其交给handler去处理
-// catch 404 and forward to error handler,捕获404 not found错误，并把它交给handler去处理
+/**
+ * 上面各个模块处理完毕后可能会抛出异常，接下来就是捕获一场并将其交给handler去处理
+ * catch 404 and forward to error handler,捕获404 not found错误，并把它交给handler去处理
+ * catch 404 and forward to error handler
+ * 业务路由中处理请求，正确时就直接返回客户端结果，即下面的中间件不再捕获请求，如果错误就会抛出异常.catch(err => next(err))，具体详见各个业务模块的处理，
+ * 然后就会被下面的中间件捕获
+ */
 app.use((req, res, next) => {
 	const err = new Error('Not Found')
 	err.status = 404
@@ -175,10 +179,17 @@ app.use((req, res, next) => {
 	next(err)
 })
 
-// error handlers
-
-// development error handler
-// will print stacktrace
+/**
+ * app.get('env) -> 获取当前用户环境变量中的NODE_ENV，在package.json里面script build中指定NODE_ENV
+ * 在我们的项目中指定了NODE_ENV=production，这个时候ridis和mongod就会去连接各自的production环境
+ * 因此NODE_ENV就是项目全局的一个开发环境变量，在某一地方自动按配置的环境变量值去执行相应环境下的代码，
+ * 譬如mongodb和redis的开发环境和生产环境，查看config.js和package.js
+ * 
+ * 如果是开发环境就在控制台打印log
+ * error handlers
+ * development error handler will print stacktrace
+ * error handlers
+ */
 if (app.get('env') === 'development') {
 	app.use((err, req, res, next) => {
 		console.log(err)
@@ -195,6 +206,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use((err, req, res, next) => {
 	res.status(err.status || 500)
+	//将错误信息渲染到views目录下的error模板中
 	res.render('error', {
 		layout: false,
 		message: err.message,
