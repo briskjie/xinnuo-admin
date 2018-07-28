@@ -9,6 +9,9 @@ import jwtauth from '../middlewares/jwtauth'
  * 如果在这个过程中出现同名的属性或方法，会覆盖原来的属性和方法
  * Object.assign是浅拷贝，也就说，如果拷贝过来的属性的值是对象等复合属性，那么只能拷贝过来一个引用
  * 由于是浅拷贝，所以拷贝过来的对象的引用的对象内部发生变化都会在目标对象上面呈现出来
+ * 
+ * 
+ * proxy.user是数据库表document的代理类，即对数据库操作的封装，包括新增数据与查询等方法
  */
 class Ctrl{
 	constructor(app) {
@@ -33,6 +36,12 @@ class Ctrl{
 	 * 
 	 * 回调函数后面的bind(this)是改变this的指向，如果不改变的话，在回调函数内部使用this指向的是回调函数返回的上下文对象，
 	 * 通过bind(this)方法可以是this指向当前外层的this，如果不用bind(this),就使用var that=this
+	 * 
+	 * wechatDecryptData解密微信数据
+	 * 小程序使用wx.getUserInfo()获取到用户信息，包括昵称、头像、省份、城市等，一般情况下使用这些资料就够了，
+	 * 但是对于一个公司有很多个小程序，或者公司的小程序与公众号关联时，为了让用户一次授权就能在所有自己的小程序和
+	 * 公众号上面使用，需要用到unionId。小程序getUserInfo()接口除了能过获得用户的普通信息外，还会返回一个加密内容decryptData，
+	 * 这个unionId就是保存在decryptData里面，需要解码才能获得到
 	 */
 	routes() {
 		this.app.post('/api/user/wechat/sign/up', this.wechatSignUp.bind(this))
@@ -59,7 +68,7 @@ class Ctrl{
 	}
 
 	/**
-	 * 服务端拿着终端从微信获取的临时访问令牌code再去微信换取 session_key
+	 * 服务端拿着终端从微信获取的临时访问令牌code再调用微信的接口（携带appid、secret和code）换取session_key
 	 */
 	getSessionKey(code) {
 		const appid = config.wechat.appid
@@ -92,6 +101,7 @@ class Ctrl{
 	 *       	"token": "token"
 	 *       }
 	 *     }
+	 * 微信注册：通过微信获取到的用户openId来注册到业务服务器中
 	 */
 	wechatSignUp(req, res, next) {
 		const code = req.body.code
@@ -103,10 +113,10 @@ class Ctrl{
 		this.getSessionKey(code)
 		.then(doc => {
 			doc = JSON.parse(doc)
-			if (doc && doc.errmsg) return res.tools.setJson(doc.errcode, doc.errmsg)
+			if (doc && doc.errmsg) return res.tools.setJson(doc.errcode, doc.errmsg)//res.tools提供了对返回数据的json封装工具，通过中间件追加到res上面去的
 			if (doc && doc.openid) {
-				body.username = doc.openid
-				return this.model.findByName(doc.openid)
+				body.username = doc.openid//openId映射到数据库中的username
+				return this.model.findByName(doc.openid)//注册的时候先去库里查看用户有没有存在，因为拿着openId去查询username
 			}
 		})
 		.then(doc => {
@@ -176,6 +186,14 @@ class Ctrl{
 			 * 
 			 * 实际上在上述服务器拿到token后，会先去redis里面匹配token，匹配的结果中有一种就是token过期，如果匹配到token，
 			 * 并且有效，再去获取用户信息，详细细节查看jwtauth.js
+			 * 
+			 * ObjectId：存储在mongodb集合中的每一个文档(document)都有一个默认主键，这个主键名称是固定的，它可以是mongodb支持
+			 * 的任何数据类型，默认是ObjectId。
+			 * ObjectId是一个由12字节的BSON类型字符串。按照字节顺序，依次代表：
+			 * 4字节：UNIX时间戳
+			 * 3字节：表示运行MongoDB的机器
+			 * 2字节：表示生成次_id的进程
+			 * 1字节：由随机数开始的计数器生成的值
 			 */
 			doc = JSON.parse(doc)
 			if (doc && doc.errmsg) return res.tools.setJson(doc.errcode, doc.errmsg)

@@ -1,7 +1,9 @@
 import bluebird from 'bluebird'
 import mongoose from 'mongoose'
 import mongoomise from 'mongoomise'
-
+/**
+ * mongodb连接
+ */
 class Mongo{
 	constructor(app, config) {
 		Object.assign(this, {
@@ -13,8 +15,8 @@ class Mongo{
 	}
 
 	init() {
-		this.env    = this.app.get('env')
-		this.dblink = this.config['mongo'][this.env]['connectionString']
+		this.env    = this.app.get('env')//获取全局环境，在package.json中指定NODE_ENV=production
+		this.dblink = this.config['mongo'][this.env]['connectionString']//根据config连接数据库
 
 		const opts = {
 			useMongoClient: true,
