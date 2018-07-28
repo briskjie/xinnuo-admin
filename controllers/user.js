@@ -120,7 +120,7 @@ class Ctrl{
 			}
 		})
 		.then(doc => {
-			if (!doc) return this.model.newAndSave(body)
+			if (!doc) return this.model.newAndSave(body)//如果用户没有注册就创建新的用户
 			if (doc && doc._id) return res.tools.setJson(1, '用户名已存在')
 		})
 		.then(doc => {
