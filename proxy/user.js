@@ -13,7 +13,7 @@ class Common{
 	 * @return {Function}          
 	 */
 	newAndSave(body) {
-		return new this.model(body).save()
+		return new this.model(body).save()//传入body，使用model模板来创建一个新的用户
 	}
 
 	/**

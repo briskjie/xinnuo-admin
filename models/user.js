@@ -72,6 +72,7 @@ Schema.methods.incLoginAttempts = function() {
     return this.updateAsync(updates)
 }
 
+//做用户登录认证
 Schema.statics.getAuthenticated = function(username, password) {
     return this.findOneAsync({username: username})
     .then(doc => {
@@ -80,7 +81,7 @@ Schema.statics.getAuthenticated = function(username, password) {
     		return reasons.NOT_FOUND
     	}
     	// check if the account is currently locked
-    	if (doc.isLocked) {
+    	if (doc.isLocked) {//doc->Schema.virtual('isLocked') doc就是schema
     		return doc.incLoginAttempts().then(() => reasons.MAX_ATTEMPTS)
     	}
     	// test for a matching password
