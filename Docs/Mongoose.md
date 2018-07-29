@@ -1,4 +1,5 @@
 https://www.cnblogs.com/surahe/p/5178654.html
+中文文档 https://www.cnblogs.com/irocker/p/mongoose-schema.html
 1、定义Schema
     在mongoose中，一切都是由schema开始的，每一个schema对应一个mongodb collection，并且在那个collection里面定义了documents的模型。
     如果想增加额外的键，使用Schema#add方法。
@@ -32,3 +33,30 @@ Schema不仅定义了document的结构和构造了属性，还定义了document�
 Schema Model Document关系
 
 Schema相当于图纸，Model相当于模型，Document就是通过模型浇筑的实体，并且具有了一系列的功能，譬如增删改查
+
+
+virtual是document的属性，你可以get，set他们，但是不持续化到Mongodb中，virtual属性get非常有用，可以格式化或者合并字段，set可以分解一个字段并持续滑倒数据库。
+
+var persionSchema = new Schema({
+    name:{
+        first:String,
+        last:string
+    }
+})
+
+var Persion = mongoose.model('Pserson',personSchema)
+
+var bad = new Person({
+    name:{first:'walter', last: 'white'}
+})
+如果要获取全名，需要这么做
+console.log(bad.name.first + ' ' + bad.name.last)
+
+或者可以在personSchema中定义virtual getter. 这样我们就不需要在每个要用fullname的地方拼接字符串了
+
+personSchema.virtual('name.full).get(function(){
+    return this.name.first + ' ' + this.name.last;
+})
+
+现在可以使用name.full属性了
+console.log(bad.name.full)

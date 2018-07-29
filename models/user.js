@@ -45,6 +45,13 @@ const reasons = Schema.statics.failedLogin = {
 }
 
 Schema.virtual('isLocked').get(function() {
+	/**
+	 * '!'将后面的值强制转换为布尔值
+	 * 
+	 * 譬如 this.lockUntil为undefined时表示没上锁，期望输出结果应该是true
+	 *  !this.lockUntil = true, !!this.lockUnitl = false 得到我们想要的结果
+	 * this.lockUnitl=true且大于Data.now()->表示还没有到锁解除的时间时都是处于上锁状态
+	 */
     return !!(this.lockUntil && this.lockUntil > Date.now())
 })
 /**
@@ -57,16 +64,18 @@ Schema.methods.comparePassword = function(candidatePassword) {
 
 Schema.methods.incLoginAttempts = function() {
     // if we have a previous lock that has expired, restart at 1
-    if (this.lockUntil && this.lockUntil < Date.now()) {
+	if (this.lockUntil && this.lockUntil < Date.now()) {//锁过期
+		//$符号，mongodb中用来增删数据库的操作符
+		//如果锁过期了就重置loginAttempts 并清除lockUnitl，所以账号非锁定状态下在数据库中不会有lockUnitl字段
         return this.updateAsync({
-            $set: { loginAttempts: 1 },
-            $unset: { lockUntil: 1 }
+            $set: { loginAttempts: 1 },//$set用来指定一个键并更新键值，若键值不存在就创建
+            $unset: { lockUntil: 1 }//$unset用来删除键值
         })
     }
     // otherwise we're incrementing
-    const updates = { $inc: { loginAttempts: 1 } }
+    const updates = { $inc: { loginAttempts: 1 } }//登录次数+1,在上锁状态和密码登录错误状态下都会执行，因为这两种情况都会调用incLoginAttempts
     // lock the account if we've reached max attempts and it's not locked already
-    if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
+    if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {//没上锁的情况下，登录徐下次登录次数超过最大值时执行上锁
         updates.$set = { lockUntil: Date.now() + LOCK_TIME }
     }
     return this.updateAsync(updates)
@@ -81,21 +90,23 @@ Schema.statics.getAuthenticated = function(username, password) {
     		return reasons.NOT_FOUND
     	}
     	// check if the account is currently locked
-    	if (doc.isLocked) {//doc->Schema.virtual('isLocked') doc就是schema
-    		return doc.incLoginAttempts().then(() => reasons.MAX_ATTEMPTS)
+    	if (doc.isLocked) {//doc->Schema.virtual('isLocked') doc就是schema,用法详见Mongoose.md -> virtual(是document的属性)
+			//账户登录已经上锁的情况下，再次登录后增加登录次数记录
+			return doc.incLoginAttempts().then(() => reasons.MAX_ATTEMPTS)//操作完成后返回最大登录次数
     	}
     	// test for a matching password
-    	if (doc.comparePassword(password)) {
+    	if (doc.comparePassword(password)) {//验证密码是否正确
     		// if there's no lock or failed attempts, just return the doc
-    		if (!doc.loginAttempts && !doc.lockUntil) return doc
-    		// reset attempts and lock info
+    		if (!doc.loginAttempts && !doc.lockUntil) return doc//验证通过直接返回doc
+			// reset attempts and lock info
+			//密码验证通过的情况下，如果loginAttempts和lockAttmpts有一个不为false就都进行重置
     		const updates = {
                 $set: { loginAttempts: 0 },
                 $unset: { lockUntil: 1 }
             }
             return doc.updateAsync(updates).then(() => doc)
     	}
-    	// password is incorrect, so increment login attempts before responding
+    	// password is incorrect, so increment login attempts before responding，密码错误
     	return doc.incLoginAttempts().then(() => reasons.PASSWORD_INCORRECT)
     })
 }
