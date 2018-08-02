@@ -47,8 +47,8 @@ class Ctrl{
 		this.client = qn.create({
 			accessKey: 'v9xUQ0SgS3ja0nK_w9e8bd5MpcJ4kN-H6BQIF7G5',
 			secretKey: 'LTMzRKqTuksiyy-P7_djSQ9xnh6Cb-pWCC6cWM_q',
-			bucket   : 'dream-river',
-			origin   : 'http://pc5a221jc.bkt.clouddn.com/',
+			bucket   : 'dream0',
+			origin   : 'http://pcu7iznmd.bkt.clouddn.com/',
 		})
 	}
 
