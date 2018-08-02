@@ -1,12 +1,13 @@
 import RestBase from 'helpers/RestBase'
 
 class Ctrl extends RestBase{
-    constructor($scope, $state, $timeout, $ionicLoading, GoodsResource, $weuiGallery, $ionicModal, AppService, ClassifyResource){
+    constructor($scope, $state, $timeout, $ionicLoading, GoodsResource, $weuiGallery, $ionicModal, AppService, QiniuService, ClassifyResource){
         super('goods', $scope, $state, $timeout, $ionicLoading, GoodsResource)
         Object.assign(this, {
             $weuiGallery, 
             $ionicModal, 
             AppService, 
+            QiniuService,
             ClassifyResource, 
         })
         this.init()
@@ -57,18 +58,33 @@ class Ctrl extends RestBase{
     }
 
     getFile() {
-        this.AppService.uploadFile({
-            file: this.file
-        }).then(data => {
+        // this.AppService.uploadFile({
+        //     file: this.file
+        // }).then(data => {
+        //     console.log(data)
+        //     if (data.meta.code == 0) {
+        //         this.form.images.push(data.data)
+        //     }
+        // })
+
+        this.QiniuService.upload(this.file).then(data => {
             console.log(data)
             if (data.meta.code == 0) {
-                this.form.images.push(data.data)
+                this.form.images.push(data.data.path)
             }
         })
     }
 
     delFile(id, index) {
-        this.AppService.delFile(id)
+        // this.AppService.delFile(id)
+        // .then(data => {
+        //     console.log(data)
+        //     if (data.meta.code == 0) {
+        //         this.form.images.splice(index, 1)
+        //     }
+        // })
+
+        this.QiniuService.delete(id)
         .then(data => {
             console.log(data)
             if (data.meta.code == 0) {
@@ -171,6 +187,7 @@ Ctrl.$inject = [
     '$weuiGallery',
     '$ionicModal',
     'AppService',
+    'QiniuService',
     'ClassifyResource',
 ] 
 
