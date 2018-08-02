@@ -3,7 +3,7 @@
 config.js中替换成自己的appid和secret
 
 
-window启动mongodb    mongod --dbpath D:\Users\cxx\MySpring\mongodb\data开启了服务端，另开一个终端后，作为客户端： mongo 连接数据库
+window启动mongodb    mongod --dbpath D:\data\db开启了服务端，另开一个终端后，作为客户端： mongo 连接数据库
 window启动redis redis-server.exe  客户端:redis-cli
 
 ubuntu启动Mongodb  sudo systemctl start mongod
