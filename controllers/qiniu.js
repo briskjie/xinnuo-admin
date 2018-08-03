@@ -37,7 +37,8 @@ class Ctrl{
 		this.app.post('/api/qiniu/image/watermark', this.watermark.bind(this))
 		this.app.post('/api/qiniu/md2html', this.md2html.bind(this))
 		this.app.post('/api/qiniu/qrcode', this.qrcode.bind(this))
-		this.app.get('/api/qiniu/getQnUploadToken',this.getQnUploadToken.bind(this))
+		this.app.get('/api/qiniu/getQnUploadToken', this.getQnUploadToken.bind(this))
+		this.app.get('/api/qiniu/upload/callback', this.qnCallback.bind(this))
 	}
 
 	/**
@@ -75,13 +76,21 @@ class Ctrl{
 		// 	qnUploadToken: uploadToken
 		// })
 
-		var token = this.client.uploadToken();
+		var token = this.client.uploadToken({
+  			callbackUrl: 'http://xinnou:3000/api/qiniu/upload/callback',
+  			callbackBody: '{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}',
+  			callbackBodyType: 'application/json'
+		});
 		return res.tools.setJson(0, ' ', {
 			qnUploadToken: token
 		})
 	}
 
 
+
+	qnCallback(req, res, next){
+
+	}
 	/**
 	 * @apiDefine Header
 	 * @apiHeader {String} Authorization jsonwebtoken
