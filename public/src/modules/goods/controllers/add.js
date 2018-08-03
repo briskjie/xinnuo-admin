@@ -70,7 +70,7 @@ class Ctrl extends RestBase{
         this.QiniuService.upload(this.file).then(data => {
             console.log(data)
             if (data.meta.code == 0) {
-                this.form.images.push(data.data.path)
+                this.form.images.push(data.data)
             }
         })
     }
