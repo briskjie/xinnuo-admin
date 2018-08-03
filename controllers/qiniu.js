@@ -37,6 +37,7 @@ class Ctrl{
 		this.app.post('/api/qiniu/image/watermark', this.watermark.bind(this))
 		this.app.post('/api/qiniu/md2html', this.md2html.bind(this))
 		this.app.post('/api/qiniu/qrcode', this.qrcode.bind(this))
+		this.app.get('/api/qiniu/getQnUploadToken',this.getQnUploadToken.bind(this))
 	}
 
 	/**
@@ -51,6 +52,35 @@ class Ctrl{
 			origin   : 'http://pcu7iznmd.bkt.clouddn.com/',
 		})
 	}
+
+
+	/**
+	 * 获取图片上传凭证
+	 * @param {*} req 
+	 * @param {*} res 
+	 * @param {*} next 
+	 */
+	getQnUploadToken(req, res, next) {
+		// var accessKey = 'v9xUQ0SgS3ja0nK_w9e8bd5MpcJ4kN-H6BQIF7G5';
+		// var secretKey = 'LTMzRKqTuksiyy-P7_djSQ9xnh6Cb-pWCC6cWM_q';
+		// var mac = new qn.auth.digest.Mac(accessKey, secretKey);
+
+		// var options = {
+		// 	scop: 'dream0',
+		// }
+
+		// var putPolicy = new qn.rs.putPolicy(options);
+		// var uploadToken = new putPolicy.uploadToken(mac);
+		// return res.tools.setJson(0, '', {
+		// 	qnUploadToken: uploadToken
+		// })
+
+		var token = this.client.uploadToken();
+		return res.tools.setJson(0, ' ', {
+			qnUploadToken: token
+		})
+	}
+
 
 	/**
 	 * @apiDefine Header
