@@ -66,7 +66,7 @@ class Ctrl extends RestBase{
         //         this.form.images.push(data.data)
         //     }
         // })
-
+        //this.file是add.html中name='file'指定的文件
         this.QiniuService.upload(this.file).then(data => {
             console.log(data)
             if (data.meta.code == 0) {

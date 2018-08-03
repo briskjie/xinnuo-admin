@@ -1,0 +1,1 @@
+https://developer.qiniu.com/kodo/manual/1205/programming-model
