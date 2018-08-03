@@ -1,6 +1,6 @@
 "# xinnuo-admin" 
 
-public里面的文件修改了需要重新build  -> npm run build
+public里面的文件修改了需要重新build  -> npm run build,不需要停服
 
 config.js中替换成自己的appid和secret
 
